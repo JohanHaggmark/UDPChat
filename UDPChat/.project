@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>UDPChat</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>src/Client/ChatGUI.java</name>
+			<type>1</type>
+			<location>C:/Users/Johan/Desktop/skola/Distribuerade System/JavaDistribueradeSystem/UDPChat/src/ChatGUI.java</location>
+		</link>
+		<link>
+			<name>src/Client/Client.java</name>
+			<type>1</type>
+			<location>C:/Users/Johan/Desktop/skola/Distribuerade System/JavaDistribueradeSystem/UDPChat/src/Client.java</location>
+		</link>
+		<link>
+			<name>src/Client/ServerConnection.java</name>
+			<type>1</type>
+			<location>C:/Users/Johan/Desktop/skola/Distribuerade System/JavaDistribueradeSystem/UDPChat/src/ServerConnection.java</location>
+		</link>
+		<link>
+			<name>src/Server/ClientConnection.java</name>
+			<type>1</type>
+			<location>C:/Users/Johan/Desktop/skola/Distribuerade System/JavaDistribueradeSystem/UDPChat/src/ClientConnection.java</location>
+		</link>
+	</linkedResources>
+</projectDescription>
