@@ -13,6 +13,7 @@ public class Client implements ActionListener {
 	private ServerConnection m_connection = null;
 
 	public static void main(String[] args) {
+		System.out.println("starting client");
 
 		if (args.length < 3) {
 			System.err.println("Usage: java Client serverhostname serverportnumber username");
@@ -42,6 +43,8 @@ public class Client implements ActionListener {
 		m_GUI.displayMessage("handshake with server");
 		if (m_connection.handshake(m_name)) {
 			m_GUI.displayMessage("Connected!");
+			//UpdateParticipantList upl = new UpdateParticipantList(m_name, m_connection);
+			new Thread(new UpdateParticipantList(m_name, m_connection)).start();		
 			listenForServerMessages();
 		} else {
 			m_GUI.displayMessage("Not Connected");
@@ -54,11 +57,14 @@ public class Client implements ActionListener {
 		// implemented properly.
 		do {
 			String[] parts = m_connection.receiveChatMessage();
-			System.out.println("received , client57");
+			for(int i = 0; i < parts.length;i++) {
+				System.out.print(parts[i]);
+			}
 
 			// switch-case for the type of message
 			// 1 = private message
 			// 2 = list of clients
+			// 
 			int i = Integer.parseInt(parts[0]);
 			switch (i) {
 			case 1:
@@ -67,7 +73,10 @@ public class Client implements ActionListener {
 			case 2:
 				m_GUI.displayParticipants(parts[1]);
 				break;
-
+			case 3:		
+				m_connection = null;
+				m_GUI.displayMessage("disconnected!");
+				m_GUI.clearClientList();
 			}
 		} while (true);
 	}
@@ -79,22 +88,8 @@ public class Client implements ActionListener {
 		// Since the only possible event is a carriage return in the text input field,
 		// the text in the chat input field can now be sent to the server.
 		// m_connection.sendChatMessage(m_GUI.getInput());
-		String message = m_GUI.getInput();
-		if (message.startsWith("/tell ")) {
-			message = message.substring(6);
-
-			// private message
-			String[] parts = message.split(", ");
-			if(parts.length != 1) {
-				String dest_name = message.substring(0, parts[0].length());
-				message = message.substring(parts[0].length()+1);
-				m_connection.sendChatMessage("1-" + m_name + "-" + dest_name + "-" + message);
-			}
-		} else {
-			// broadcast
-			m_connection.sendChatMessage("2-" + m_name + "-" + message);
-			
-		}
+		Message msg = new Message(m_name);
+		m_connection.sendChatMessage(msg.getTranslattionFromInputToMessage(m_GUI.getInput()));
 		m_GUI.clearInput();
 	}
 }

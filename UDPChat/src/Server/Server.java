@@ -26,6 +26,7 @@ public class Server {
 		}
 		try {
 			Server instance = new Server(Integer.parseInt(args[0]));
+			instance.listenToClientStatus();
 			instance.listenForClientMessages();
 		} catch (NumberFormatException e) {
 			System.err.println("Error: port number must be an integer.");
@@ -34,8 +35,6 @@ public class Server {
 	}
 
 	private Server(int portNumber) {
-		// TODO: create a socket, attach it to port based on portNumber, and assign it
-		// to m_socket
 		try {
 			m_socket = new DatagramSocket(portNumber);
 		} catch (SocketException e) {
@@ -46,25 +45,24 @@ public class Server {
 
 	private void listenForClientMessages() {
 		System.out.println("Waiting for client messages... ");
-
+		//new Thread(new ConnectionStatus(m_connectedClients)).start();
 		do {
 			byte[] buffer = new byte[256];
 			DatagramPacket p = new DatagramPacket(buffer, buffer.length);
 			try {
-				System.out.println("server receives Server54");
 				m_socket.receive(p);
 				String received = new String(p.getData(), 0, p.getLength());
 				String[] parts = received.split("-");
-				System.out.println("server has received , Server58");
 				// switch-case for the type of message
 				// 0 = Client wants to connect
 				// 1 = Client Sends private message
 				// 2 = Client Sends broadcast
 				// 3 = Client wants list of Clients
-				for(int i = 0; i < parts.length; i++) {
-					System.out.print(parts[i]+" ");
+				for (int i = 0; i < parts.length; i++) {
+					System.out.print(parts[i] + " ");
 				}
-				
+				System.out.println(" ");
+
 				int i = Integer.parseInt(parts[0]);
 				switch (i) {
 				case 0:
@@ -73,6 +71,7 @@ public class Server {
 				case 1:
 					// 1.source 2.destination 3.message
 					clientPrivateMessage(parts[1], parts[2], parts[3]);
+					clientPrivateMessage(parts[1], parts[1], parts[3]);
 					break;
 				case 2:
 					// 1.source 2.message
@@ -81,21 +80,17 @@ public class Server {
 				case 3:
 					updateClientList(parts[1]);
 					break;
+				case 4:
+					disconnectUser(parts[1]);
+					break;
+				case 5:
+					updateClientList(parts[1]);
+					clientList(parts[1]);
 				}
-
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
-			// TODO: Listen for client messages.
-			// On reception of message, do the following:
-			// * Unmarshal message
-			// * Depending on message type, either
-			// - Try to create a new ClientConnection using addClient(), send
-			// response message to client detailing whether it was successful
-			// - Broadcast the message to all connected users using broadcast()
-			// - Send a private message to a user using sendPrivateMessage()
 		} while (true);
 	}
 
@@ -129,13 +124,14 @@ public class Server {
 	}
 
 	private void updateClientList(String name) {
+		updateClientStatus(name);
 		sendPrivateMessage("2-" + getListOfClients(), name);
 	}
 
 	private String getListOfClients() {
 		String list = "";
 		for (ClientConnection c : m_connectedClients) {
-			list.concat(c.getName() + "\n");
+			list += c.getName() + "\n";
 		}
 		return list;
 	}
@@ -143,10 +139,8 @@ public class Server {
 	private void newClient(String name, DatagramPacket p) {
 		if (addClient(name, p.getAddress(), p.getPort())) {
 			sendPrivateMessage("0-1", name);
-			System.out.println("Has sent connected!");
 		} else {
 			sendPrivateMessage("0-0", name);
-			System.out.println("Has sent not connected");
 		}
 	}
 
@@ -157,4 +151,29 @@ public class Server {
 	private void clientBroadcast(String source, String msg) {
 		broadcast("1-" + source + ": " + msg);
 	}
+	private void disconnectUser(String name) {
+		for(int i = 0; i < m_connectedClients.size(); i++) {
+			if(m_connectedClients.get(i).hasName(name)) {
+				m_connectedClients.get(i).sendMessage("3-", m_socket);
+				m_connectedClients.remove(i);		
+				break;
+			}
+		}
+	}
+	private void clientList(String name) {
+		sendPrivateMessage("1-"+getListOfClients(), name);
+	}	
+	private void updateClientStatus(String name) {
+		ClientConnection c;
+		for (Iterator<ClientConnection> itr = m_connectedClients.iterator(); itr.hasNext();) {
+			c = itr.next();
+			if (c.hasName(name)) {
+				c.isAlive = true;
+			}
+		}
+	}
+	private void listenToClientStatus() {
+		new Status(m_connectedClients);
+	}
+
 }

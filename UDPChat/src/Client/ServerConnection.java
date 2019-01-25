@@ -52,7 +52,7 @@ public class ServerConnection {
 		// * receive response message from server
 		// * unmarshal response message to determine whether connection was successful
 		// * return false if connection failed (e.g., if user name was taken)
-
+		System.out.println(m_socket.getLocalPort());
 		sendChatMessage("0-" + name);
 		String parts[] = receiveChatMessage();
 		if (parts[1].equals("1")) {

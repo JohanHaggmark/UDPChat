@@ -41,10 +41,11 @@ public class ChatGUI extends JFrame implements ActionListener{
 	m_chatInput = new JTextField(20);
 	
 	m_participants = new JTextArea(10,1);
-	m_participants.setBounds(-50, 0, 70, 500);;
+	m_participants.setBounds(0, 0, 70, 500);;
 
 	
 	m_participants.setWrapStyleWord(true);
+	m_participants.setLineWrap(true);
 	m_participants.setEditable(false);
 	m_participants.setBackground(Color.DARK_GRAY);
 	m_participants.setForeground(Color.PINK);
@@ -80,6 +81,10 @@ public class ChatGUI extends JFrame implements ActionListener{
 
     public void clearInput() {
 	m_chatInput.setText("");
+    }
+    
+    public void clearClientList() {
+    	m_participants.setText("");
     }
 
     @Override

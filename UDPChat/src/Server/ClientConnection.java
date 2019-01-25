@@ -24,13 +24,13 @@ public class ClientConnection {
 	private DatagramPacket p;
 	private byte[] buffer;
 	private String received;
+	public boolean isAlive = true;
 	
 
 	public ClientConnection(String name, InetAddress address, int port) {
 		m_name = name;
 		m_address = address;
-		m_port = port;
-		
+		m_port = port;	
 		buffer = new byte[256];
 		p = new DatagramPacket(buffer, buffer.length);
 		
